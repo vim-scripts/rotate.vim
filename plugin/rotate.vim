@@ -1,21 +1,21 @@
 "=============================================================================
 " File: rotate.vim
 " Author: Jens Paulus <jpaulus@freenet.de>
-" Last Change:	2005 Jan 12
-" Version: 1.0
+" Last Change:	2005 Jan 28
+" Version: 1.2
 "-----------------------------------------------------------------------------
 " This file enables Vim to rotate or rearrange text.
 "-----------------------------------------------------------------------------
-" To use this file put it in your plugin directory and it will be sourced.
-" If not, you must manually source this file using :source rotate.vim<Return>.
+" To use this file put it in your plugin directory. If not, you must manually
+" source it by entering :source rotate.vim<Return>.
 "
-" This file provides the function Rotate() which does the work and the commands
+" This file provides the function Rotate() and the commands
 " Rot [arg], Srot [arg], Rotv [arg], Srotv [arg] which call the function with
 " the right arguments.
-" The commands that begin with "S" open the result in a new window.
-" The commands that end with "v" are for use in Visual mode.
-" The commands accept an optional argument [arg] to specify the desired action,
-" it corresponds to the first argument in the function, see below.
+" The commands beginning with "S" open the result in a new window.
+" The commands ending with "v" operate on the latest Visual mode text region.
+" All commands accept an optional argument [arg] to specify the desired action,
+" it is one of x, h, v, l, r, u, see below.
 " If no argument is specified, then lines and columns are exchanged.
 "
 " Examples:
@@ -26,8 +26,8 @@
 "
 " The function usage is :<range>call Rotate("c",a,b) where c,a,b are as follows.
 " If c is x lines and columns are exchanged, this is the default action
-"         h the text is reordered from right to left
-"         v the text is reordered from bottom to top
+"         h the text columns are reordered from right to left
+"         v the text lines are reordered from bottom to top
 "         l the text is rotated counter clockwise
 "         r the text is rotated clockwise
 "         u the text is put upside down
@@ -40,7 +40,7 @@
 " l(T) = v(x(T)) = x(h(T))
 " r(T) = x(v(T)) = h(x(T))
 " u(T) = v(h(T)) = h(v(T))
-
+"
 " Test if this plugin has already been loaded
 if exists("loaded_rotate")
 finish
@@ -49,9 +49,9 @@ let loaded_rotate=1
 
 function Rotate(char,vimode,newwin) range
 if a:char==""
-let flag="x"
+let s:flag="x"
 else
-let flag=tolower(a:char)
+let s:flag=tolower(a:char)
 endif
 setlocal report=996
 if a:vimode==0
@@ -63,13 +63,13 @@ new
 setlocal tw=0
 put
 1d _
-let maxlen=0
-%g/^/if col("$")>maxlen|let maxlen=col("$")|endif
-%g/^/if col("$")<maxlen|exe "norm! ".(maxlen-col("$"))."A "|endif
-if (flag=="r")||(flag=="v")
+let s:maxlen=0
+%g/^/if col("$")>s:maxlen|let s:maxlen=col("$")|endif
+%g/^/if col("$")<s:maxlen|exe "norm! ".(s:maxlen-col("$"))."A \<Esc>"|endif
+if (s:flag=="r")||(s:flag=="v")
 2,$g/^/m 0
 endif
-if (flag=="x")||(flag=="r")||(flag=="l")
+if (s:flag=="x")||(s:flag=="r")||(s:flag=="l")
 norm! G0mc
 while col("$")>1
 exe "norm! \<C-V>god"
@@ -79,7 +79,7 @@ norm! `c
 endwhile
 1,'cd _
 endif
-if (flag=="h")||(flag=="u")
+if (s:flag=="h")||(s:flag=="u")
 exe "norm! G0mc\<C-V>god$p"
 while col(".")>2
 norm! h`c
@@ -87,11 +87,11 @@ exe "keepj norm! \<C-V>god"
 norm! ``P
 endwhile
 endif
-if (flag=="l")||(flag=="u")
+if (s:flag=="l")||(s:flag=="u")
 2,$g/^/m 0
 endif
 norm! go
-unlet maxlen
+unlet s:maxlen
 if a:newwin==0
 exe "norm! go\<C-V>G$y"
 q!
@@ -101,7 +101,7 @@ else
 norm! gvp
 endif
 endif
-unlet flag
+unlet s:flag
 endfunction
 
 command -range -nargs=? Rot <line1>,<line2>call Rotate(<q-args>,0,0)
