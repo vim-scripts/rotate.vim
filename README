@@ -1,0 +1,12 @@
+This is a mirror of http://www.vim.org/scripts/script.php?script_id=1186
+
+This script enables Vim to do things like rotate text (counter) clockwise (l/r), put it upside down (u),
+exchange lines and columns (x), reorder it from right to left (h) or from bottom to top (v).
+The command :<range>Rot [arg] allows a range in which this will be done.
+If no range is specified the current line is taken. The optional argument (in parenthesis) specifies which
+operation is performed. If none is given, lines and columns are exchanged.
+The command :Rotv [arg] operates on the last visual area and is good for use in Visual mode.
+The corresponding commands :<range>Srot [arg] and :Srotv [arg] open the result in a new window.
+Any comments are welcome.
+
+
